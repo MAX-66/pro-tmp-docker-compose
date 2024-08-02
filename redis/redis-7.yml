@@ -1,0 +1,10 @@
+version: '3'
+services:
+  redis:
+    image: "redis:7.4.0"
+    container_name: redis-7
+    command: redis-server --requirepass 123456
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data-7/redis:/var/lib/redis
