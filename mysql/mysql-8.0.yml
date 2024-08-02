@@ -1,18 +1,22 @@
 version: '3.8'
 services:
   mysql:
-    image: mysql
+    # 升级还要改 Dockerfile 的版本号
+    image: "pro-temp/mysql:8.0.33"
     container_name: mysql
     build:
       context: .
-      dockerfile: ./image/mysql/8/Dockerfile
+      dockerfile: ./Dockerfile
     ports:
-      - 3306:3306
+      - "3306:3306"
     environment:
       TZ: Asia/Shanghai
-      MYSQL_ROOT_PASSWORD: 123456
+    env_file:
+      # 账号密码都在这个文件里面设置
+      - ../env/mysql.env
     command:
       --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
       --explicit_defaults_for_timestamp=true
       --lower_case_table_names=1
     volumes:
