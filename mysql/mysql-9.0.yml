@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  mysql-9:
+    # 升级还要改 Dockerfile-9 的版本号
+    image: "pro-temp/mysql:9.0.1"
+    container_name: mysql-9
+    build:
+      context: .
+      dockerfile: ./Dockerfile-9
+    ports:
+      - "3309:3306"
+    environment:
+      TZ: Asia/Shanghai
+    env_file:
+      # 账号密码都在这个文件里面设置
+      - ../env/mysql.env
+    command:
+      --character-set-server=utf8mb4
+      --explicit_defaults_for_timestamp=true
+      --lower_case_table_names=1
+    volumes:
+      - ./data-9:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
