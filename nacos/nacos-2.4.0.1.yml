@@ -1,0 +1,32 @@
+version: '3.8'
+
+# https://github.com/nacos-group/nacos-docker/blob/master/example/standalone-derby.yaml
+
+services: 
+  nacos:
+    image: nacos/nacos-server:v2.4.0.1
+    container_name: nacos-2.2.3-slim
+    env_file: 
+      - ./env/nacos-standlone-mysql.env
+    # depends_on:
+    #   mysql:
+    #     condition: service_healthy
+    build: 
+      context: .
+      network: custom_network_1
+    volumes:
+      - ./standalone-logs/:/home/nacos/logs
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+
+    networks: 
+      - mysql-network
+      - nacos-network
+
+networks:
+  nacos-network:
+    name: nacos-network
+  mysql-network:
+    name: mysql-network
+
