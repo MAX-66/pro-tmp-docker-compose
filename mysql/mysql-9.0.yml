@@ -17,6 +17,7 @@ services:
       --lower_case_table_names=1
     volumes:
       - ./data-9:/var/lib/mysql
+      # https://hub.docker.com/_/mysql  Initializing a fresh instance
       - ./mysql-schema.sql:/docker-entrypoint-initdb.d/nacos-mysql.sql
     healthcheck:
       test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
