@@ -1,12 +1,8 @@
 version: '3.8'
 services:
   mysql-9:
-    # 升级还要改 Dockerfile-9 的版本号
-    image: "pro-temp/mysql:9.0.1"
+    image: "mysql:9.0.1"
     container_name: mysql-9
-    build:
-      context: .
-      dockerfile: ./Dockerfile-9
     ports:
       - "3309:3306"
     environment:
@@ -20,6 +16,7 @@ services:
       --lower_case_table_names=1
     volumes:
       - ./data-9:/var/lib/mysql
+      - ./mysql-schema.sql:/docker-entrypoint-initdb.d/nacos-mysql.sql
     healthcheck:
       test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
       interval: 5s

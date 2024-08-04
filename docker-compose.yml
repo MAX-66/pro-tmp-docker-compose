@@ -2,14 +2,58 @@ version: '3.8'
 
 # https://github.com/nacos-group/nacos-docker/blob/master/example/standalone-derby.yaml
 
-services: 
+services:
+  mysql:
+    image: mysql:${MYSQL_VERSION}
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      TZ: Asia/Shanghai
+    env_file:
+      # 账号密码都在这个文件里面设置
+      - ./env/mysql.env
+    command:
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --explicit_defaults_for_timestamp=true
+      --lower_case_table_names=1
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/mysql-schema.sql:/docker-entrypoint-initdb.d/nacos-mysql.sql
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    networks:
+      nacos_net:
+        ipv4_address: 172.16.238.12
+
+  redis:
+    image: redis:${REDIS_VERSION}
+    container_name: redis
+    environment:
+      TZ: Asia/Shanghai
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    networks:
+      nacos_net:
+        ipv4_address: 172.16.238.14
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/data/:/var/lib/redis
+
   nacos:
     image: nacos/nacos-server:${NACOS_VERSION}
     container_name: nacos
+    environment:
+      TZ: Asia/Shanghai
+      NACOS_AUTH_ENABLE: true
     networks:
       nacos_net:
-        ipv4_address: 172.16.238.11
-    env_file: 
+        ipv4_address: 172.16.238.13
+    env_file:
       - ./env/nacos-standlone-mysql.env
     depends_on:
       mysql:
@@ -19,44 +63,7 @@ services:
     ports:
       - "8848:8848"
       - "9848:9848"
-  
-  mysql:
-    image: mysql
-    container_name: mysql
-    build:
-      context: .
-      dockerfile: ./image/mysql/8/Dockerfile
-    networks:
-      nacos_net:
-        ipv4_address: 172.16.238.12
-    ports:
-      - 3306:3306
-    environment:
-      TZ: Asia/Shanghai
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    command:
-      --default-authentication-plugin=mysql_native_password
-      --explicit_defaults_for_timestamp=true
-      --lower_case_table_names=1
-    volumes:
-      - ./mysql/data:/var/lib/mysql
-    healthcheck:
-      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
-      interval: 5s
-      timeout: 10s
-      retries: 10
 
-  redis:
-    image: redis:${REDIS_VERSION}
-    container_name: redis
-    command: redis-server --requirepass ${REDIS_PASSWROD}
-    networks:
-      nacos_net:
-        ipv4_address: 172.16.238.13
-    ports:
-      - "6379:6379"
-    volumes:
-      - ./redis/data/:/var/lib/redis
 
 networks:
   nacos_net:
