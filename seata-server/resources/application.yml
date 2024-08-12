@@ -1,0 +1,72 @@
+server:
+  port: 7091
+
+spring:
+  application:
+    name: seata-server
+
+logging:
+  config: classpath:logback-spring.xml
+  file:
+    path: ${log.home:${user.home}/logs/seata}
+  extend:
+    logstash-appender:
+      destination: 127.0.0.1:4560
+    kafka-appender:
+      bootstrap-servers: 127.0.0.1:9092
+      topic: logback_to_logstash
+
+console:
+  user:
+    username: ${SERVER_USERNAME:seata}
+    password: ${SERVER_PASSWORD:seata}
+
+seata:
+  config:
+    # support: nacos, consul, apollo, zk, etcd3
+    type: ${SERVER_CONFIG_TYPE:nacos}
+    nacos:
+      server-addr: ${NACOS_ADDR}:${NACOS_PORT}
+      namespace: ${NACOS_NAMESPACE}
+      group: ${NACOS_GROUP}
+      username: ${NACOS_USERNAME}
+      password: ${NACOS_PASSWORD}
+      data-id: ${NACOS_DATA_ID}
+
+  registry:
+    # support: nacos, eureka, redis, zk, consul, etcd3, sofa
+    type: ${SERVER_REGISTRY_TYPE:nacos}
+    nacos:
+      application: ${spring.application.name}
+      server-addr: ${NACOS_ADDR}:${NACOS_PORT}
+      group: ${NACOS_GROUP}
+      namespace: ${NACOS_NAMESPACE}
+      # tc集群名称
+      cluster: default
+      username: ${NACOS_USERNAME}
+      password: ${NACOS_PASSWORD}
+  store:
+    # support: file 、 db 、 redis 、 raft
+    mode: db
+    db:
+      datasource: druid
+      db-type: mysql
+      driver-class-name: ${MYSQL_DRIVER_CLASS_NAME:com.mysql.jdbc.Driver}
+      url: jdbc:mysql://${MYSQL_SERVICE_HOST}:${MYSQL_SERVICE_PORT:3306}/${MYSQL_SERVICE_DB_NAME}?${MYSQL_SERVICE_DB_PARAM:characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false}
+      user: ${MYSQL_SERVICE_USER}
+      password: ${MYSQL_SERVICE_PASSWORD}
+      min-conn: 10
+      max-conn: 100
+      global-table: global_table
+      branch-table: branch_table
+      lock-table: lock_table
+      distributed-lock-table: distributed_lock
+      query-limit: 1000
+      max-wait: 5000
+#  server:
+#    service-port: 8091 #If not configured, the default is '${server.port} + 1000'
+  security:
+    secretKey: SeataSecretKey0c382ef121d778043159209298fd40bf3850a017
+    tokenValidityInMilliseconds: 1800000
+    ignore:
+      urls: /,/**/*.css,/**/*.js,/**/*.html,/**/*.map,/**/*.svg,/**/*.png,/**/*.ico,/console-fe/public/**,/api/v1/auth/login

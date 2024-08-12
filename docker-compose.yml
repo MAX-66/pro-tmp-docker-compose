@@ -3,7 +3,7 @@ version: '3.8'
 # https://github.com/nacos-group/nacos-docker/blob/master/example/standalone-derby.yaml
 
 services: 
-  nacos:
+  nacos-server:
     image: nacos/nacos-server:${NACOS_VERSION}
     container_name: nacos
     networks:
@@ -21,11 +21,8 @@ services:
       - "9848:9848"
   
   mysql:
-    image: mysql
+    image: mysql:${MYSQL_VERSION}
     container_name: mysql
-    build:
-      context: .
-      dockerfile: ./image/mysql/8/Dockerfile
     networks:
       nacos_net:
         ipv4_address: 172.16.238.12
@@ -57,6 +54,21 @@ services:
       - "6379:6379"
     volumes:
       - ./redis/data/:/var/lib/redis
+
+  seata-server:
+    image: apache/seata-server:${SEATA_VERSION}
+    hostname: seata-server
+    networks:
+      nacos_net:
+        ipv4_address: 172.16.238.14
+    ports:
+      - "7091:7091"
+      - "8091:8091"
+    env_file: 
+      - ./env/seata-server-nacos-mysql.env
+    volumes:
+      - ./seata-server/resources:/seata-server/resources
+      - ./seata-server/libs/mysql-connector-java-8.0.11.jar:/seata-server/libs/mysql-connector-java-8.0.11.jar
 
 networks:
   nacos_net:
