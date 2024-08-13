@@ -80,7 +80,7 @@ services:
     container_name: sentinel-server
     build:
       context: ./
-      dockerfile: ./sentinel/image/Dockerfile
+      dockerfile: ./image/sentinel/Dockerfile
       args: 
         PORT: ${SENTINEL_PORT}
         VERSION: ${SENTINEL_VERSION}
