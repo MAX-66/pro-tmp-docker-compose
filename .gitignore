@@ -1,5 +1,8 @@
 /*/data**
 /*/standalone-logs
+/**/log
+/**/logs
+/**/*logs*
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Java template

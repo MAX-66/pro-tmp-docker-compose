@@ -2,34 +2,15 @@ version: '3.8'
 
 # https://github.com/nacos-group/nacos-docker/blob/master/example/standalone-derby.yaml
 
-services: 
-  nacos:
-    image: nacos/nacos-server:${NACOS_VERSION}
-    container_name: nacos
-    networks:
-      nacos_net:
-        ipv4_address: 172.16.238.11
-    env_file: 
-      - ./env/nacos-standlone-mysql.env
-    depends_on:
-      mysql:
-        condition: service_healthy
-    volumes:
-      - ./nacos/standalone-logs/:/home/nacos/logs
-    ports:
-      - "8848:8848"
-      - "9848:9848"
-  
+services:
   mysql:
     image: mysql:${MYSQL_VERSION}
     container_name: mysql
     networks:
       nacos_net:
-        ipv4_address: 172.16.238.12
+        ipv4_address: 172.16.238.11
     ports:
       - "3306:3306"
-    environment:
-      TZ: Asia/Shanghai
     env_file:
       # 账号密码都在这个文件里面设置
       - ./env/mysql.env
@@ -53,14 +34,31 @@ services:
     container_name: redis
     environment:
       TZ: Asia/Shanghai
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: redis-server --requirepass ${REDIS_PASSWROD}
     networks:
       nacos_net:
-        ipv4_address: 172.16.238.13
+        ipv4_address: 172.16.238.12
     ports:
       - "6379:6379"
     volumes:
       - ./redis/data/:/var/lib/redis
+
+  nacos-server:
+    image: nacos/nacos-server:${NACOS_VERSION}
+    container_name: nacos-server
+    networks:
+      nacos_net:
+        ipv4_address: 172.16.238.13
+    env_file:
+      - ./env/nacos-standlone-mysql.env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./nacos/standalone-logs/:/home/nacos/logs
+    ports:
+      - "8848:8848"
+      - "9848:9848"
 
   seata-server:
     image: apache/seata-server:${SEATA_VERSION}
@@ -76,6 +74,36 @@ services:
     volumes:
       - ./seata-server/resources:/seata-server/resources
       - ./seata-server/libs/mysql-connector-java-8.0.11.jar:/seata-server/libs/mysql-connector-java-8.0.11.jar
+
+  sentinel-server:
+    image: sentinel-server:latest
+    container_name: sentinel-server
+    build:
+      context: ./
+      dockerfile: ./sentinel/Dockerfile
+      args: 
+        PORT: ${SENTINEL_PORT}
+        VERSION: ${SENTINEL_VERSION}
+    hostname: sentinel-server
+    networks:
+      nacos_net:
+        ipv4_address: 172.16.238.15
+    ports:
+      - "${SENTINEL_PORT}:${SENTINEL_PORT}"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "1"
+    volumes:
+      - ./sentinel/root/logs:/root/logs
+      - ./sentinel/app-logs:/app-logs
+    # command: "--logging.file.path=/app-logs"
+    environment:
+      PORT: ${SENTINEL_PORT}
+      VERSION: ${SENTINEL_VERSION}
+    env_file:
+      - ./env/sentinel-server.env
 
 networks:
   nacos_net:
