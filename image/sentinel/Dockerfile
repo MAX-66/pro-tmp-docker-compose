@@ -19,7 +19,6 @@ COPY --from=installer ["./sentinel-dashboard.jar", "/home/sentinel-dashboard.jar
 # 定义环境变量
 # ENV PORT=$PORT
 # ENV JAVA_OPTS="-Dserver.port=${PORT} -Dcsp.sentinel.dashboard.server=localhost:${PORT}"
-
 # RUN echo "Based on commit: $JAVA_OPTS"
 
 RUN chmod +x /home/sentinel-dashboard.jar

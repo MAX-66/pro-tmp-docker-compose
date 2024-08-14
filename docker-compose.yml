@@ -105,6 +105,20 @@ services:
     env_file:
       - ./env/sentinel-server.env
 
+  mongodb:
+    image: mongo:${MONGODB_VERSION}
+    container_name: mongodb
+    networks:
+      nacos_net:
+        ipv4_address: 172.16.238.16
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 123456
+    volumes:
+      - ./mongodb/data/db:/data/db
+
 networks:
   nacos_net:
     driver: bridge
