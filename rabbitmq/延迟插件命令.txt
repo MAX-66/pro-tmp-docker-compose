@@ -1,0 +1,7 @@
+docker cp ./plugins/rabbitmq_delayed_message_exchange-3.13.0.ez rabbitmq:/plugins
+
+docker exec -it rabbitmq /bin/bash
+
+rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+
+docker restart rabbitmq

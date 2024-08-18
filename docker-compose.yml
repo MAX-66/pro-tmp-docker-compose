@@ -119,6 +119,30 @@ services:
     volumes:
       - ./mongodb/data/db:/data/db
 
+
+
+  rabbitmq:
+    image: rabbitmq:${RABBITMQ_VERSION}
+    container_name: rabbitmq
+    restart: always
+    volumes:
+      - ./rabbitmq/data/:/var/lib/rabbitmq/
+      - ./rabbitmq/logs/:/var/log/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+#  https://www.rabbitmq.com/docs/configure#supported-environment-variables
+#  https://www.rabbitmq.com/docs/configure
+      - TZ=Asia/Shanghai
+      - RABBITMQ_DEFAULT_USER=root # 默认管理员账号
+      - RABBITMQ_DEFAULT_PASS=123456 # 默认管理密码
+    networks:
+      nacos_net:
+        ipv4_address: 172.16.238.17
+
+
+
 networks:
   nacos_net:
     driver: bridge
@@ -126,3 +150,5 @@ networks:
       driver: default
       config:
         - subnet: 172.16.238.0/24
+
+
