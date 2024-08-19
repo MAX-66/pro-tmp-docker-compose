@@ -124,7 +124,6 @@ services:
   rabbitmq:
     image: rabbitmq:${RABBITMQ_VERSION}
     container_name: rabbitmq
-    restart: always
     volumes:
       - ./rabbitmq/data/:/var/lib/rabbitmq/
       - ./rabbitmq/logs/:/var/log/rabbitmq
